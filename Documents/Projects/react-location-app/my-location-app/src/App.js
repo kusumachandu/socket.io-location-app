@@ -19,23 +19,30 @@ function App() {
   }
 
   function sendMessage() {
-    socket.emit("send message", { latitude, longitude, room });
+    socket.emit("send message", { latitude, longitude, room, location });
   }
 
   useEffect(() => {
-    navigator.geolocation.watchPosition((position) => {
-      const locationData = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      }
-      socket.emit("location", locationData);
-    })
+    const intervalId = setInterval(() => {
+      navigator.geolocation.watchPosition((position) => {
+        const locationData = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }
+        //socket.emit("location", locationData);
+        setLocation(locationData);
+      })
+    
+    }, 5000)
     socket.on("receive message", (data) => {
       setMessageReceived(data);
     })
-  }, [socket])
+    return () => {
+      clearInterval(intervalId);
+    }
+  }, []);
 
-  console.log(messageReceived);
+  console.log(location);
 
   return (
     <div className="App">
@@ -46,7 +53,7 @@ function App() {
             <input style={{ padding: "5px", marginRight: "5px" }} placeholder='room number...' onChange={(e) => { setRoom(e.target.value) }} />
             <button style={{ padding: "5px" }} onClick={joinRoom}>Join Room</button>
           </div>
-          <div style={{ margin: "10px",  }} className="latitude">
+          <div style={{ margin: "10px", }} className="latitude">
             <label style={{ fontWeight: 600 }}>Latitude: </label>
             <input style={{ padding: "5px" }} placeholder='latitude...' name="latitude" onChange={(e) => setLatitude(e.target.value)} />
           </div>
@@ -60,13 +67,13 @@ function App() {
           <div>
             <span style={{ display: "flex", gap: "5px" }}>
               <h1>LAT:</h1>
-              <p style={{ marginTop: "23px", fontWeight: "600", color: "whitesmoke", fontSize: "30px" }}>{messageReceived.latitude}</p>
+              <p style={{ marginTop: "23px", fontWeight: "600", color: "gray", fontSize: "30px" }}>{messageReceived.latitude}</p>
             </span>
           </div>
           <div>
-            <span style={{display: 'flex', gap:"5px"}}>
+            <span style={{ display: 'flex', gap: "5px" }}>
               <h1 style={{ display: "inline" }}>LON:</h1>
-              <p style={{ marginTop: "23px", fontWeight: "600", color: "whitesmoke", fontSize: "30px" }}>{messageReceived.longitude}</p>
+              <p style={{ marginTop: "23px", fontWeight: "600", color: "gray", fontSize: "30px" }}>{messageReceived.longitude}</p>
             </span>
           </div>
 

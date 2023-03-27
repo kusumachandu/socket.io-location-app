@@ -22,8 +22,14 @@ io.on("connection", (socket) => {
         socket.join(data)
     })
 
+    // socket.on('location', (data) => {
+    //     console.log(`received location latitude: ${data.location.latitude}`);
+    //     console.log(`received location longitude: ${data.location.longitude}`);
+    //     socket.broadcast.emit('location', data.location);
+    // })
+
     socket.on("send message", (data) => {
-        socket.broadcast.emit("receive message", data) //to(data.room)
+        socket.to(data.room).emit("receive message", data.location) //to(data.room)
     })
 
     socket.on("disconnect", (socket) => {
